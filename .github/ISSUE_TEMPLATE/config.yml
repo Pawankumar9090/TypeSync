@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/Pawankumar9090/TypeSync/discussions/new?category=q-a
+    about: Ask a question about how to use TypeSync
+  - name: Security Vulnerability
+    url: https://github.com/Pawankumar9090/TypeSync/security/policy
+    about: Report a security vulnerability

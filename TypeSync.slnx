@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TypeSync.Tests/TypeSync.Tests.csproj" />
+  <Project Path="TypeSync/TypeSync.csproj" />
+</Solution>

@@ -1,0 +1,56 @@
+name: Bug Report
+description: Create a report to help us improve TypeSync
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: I expected X to happen, but Y happened instead...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Create a class 'Foo'
+        2. Create a class 'Bar'
+        3. Configure mapping 'CreateMap<Foo, Bar>()'
+        4. Call 'mapper.Map<Bar>(foo)'
+        5. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        - TypeSync Version:
+        - .NET Version:
+        - OS:
+      value: |
+        - TypeSync Version: [e.g. 1.0.0]
+        - .NET Version: [e.g. 8.0]
+        - OS: [e.g. Windows 11, Ubuntu 22.04]
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
