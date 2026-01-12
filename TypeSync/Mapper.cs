@@ -9,9 +9,13 @@ public class Mapper : IMapper
 {
     private readonly MappingEngine _engine;
 
-    internal Mapper(MappingEngine engine)
+    /// <inheritdoc/>
+    public IConfigurationProvider ConfigurationProvider { get; }
+
+    internal Mapper(MappingEngine engine, IConfigurationProvider configurationProvider)
     {
         _engine = engine;
+        ConfigurationProvider = configurationProvider;
     }
 
     /// <inheritdoc/>
@@ -100,5 +104,11 @@ public class Mapper : IMapper
         }
 
         return _engine.Map(source, sourceType, destinationType, options);
+    }
+
+    /// <inheritdoc/>
+    public IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source)
+    {
+        return source.ProjectTo<TDestination>(ConfigurationProvider);
     }
 }

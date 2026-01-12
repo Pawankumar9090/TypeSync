@@ -21,8 +21,16 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember> : IMe
     /// <inheritdoc/>
     public void MapFrom<TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember)
     {
-        var compiled = sourceMember.Compile();
-        _propertyMap.CustomResolver = source => compiled((TSource)source);
+        _propertyMap.SourceExpression = sourceMember;
+        
+        // Create a null-safe resolver that checks for nulls in the expression chain
+        _propertyMap.CustomResolver = source =>
+        {
+            if (source == null) return default(TSourceMember);
+            
+            // Try to safely evaluate the expression by checking member access chain for nulls
+            return NullSafeEvaluator.Evaluate(sourceMember, (TSource)source);
+        };
     }
 
 

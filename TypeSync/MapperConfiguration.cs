@@ -6,7 +6,7 @@ namespace TypeSync;
 /// <summary>
 /// Stores and manages all mapping configurations.
 /// </summary>
-public class MapperConfiguration
+public class MapperConfiguration : IConfigurationProvider
 {
     private readonly Dictionary<(Type, Type), TypeMap> _typeMaps = new();
     private readonly List<MappingProfile> _profiles = [];
@@ -92,7 +92,7 @@ public class MapperConfiguration
     /// <returns>Configured mapper instance.</returns>
     public IMapper CreateMapper()
     {
-        return new Mapper(new MappingEngine(_typeMaps));
+        return new Mapper(new MappingEngine(_typeMaps), this);
     }
 
     /// <summary>
@@ -122,4 +122,10 @@ public class MapperConfiguration
     }
 
     internal Dictionary<(Type, Type), TypeMap> GetTypeMaps() => _typeMaps;
+
+    /// <inheritdoc/>
+    public TypeMap? FindTypeMapFor(Type sourceType, Type destinationType)
+    {
+        return _typeMaps.TryGetValue((sourceType, destinationType), out var typeMap) ? typeMap : null;
+    }
 }

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 namespace TypeSync;
 
 /// <summary>
@@ -19,6 +20,7 @@ namespace TypeSync;
 public abstract class MappingProfile
 {
     private MapperConfiguration? _configuration;
+    private readonly List<Action<MapperConfiguration>> _pendingConfigurations = [];
 
     /// <summary>
     /// Creates a mapping configuration between source and destination types.
@@ -28,12 +30,19 @@ public abstract class MappingProfile
     /// <returns>Mapping expression for further configuration.</returns>
     protected IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
     {
-        if (_configuration == null)
+        if (_configuration != null)
         {
-            throw new InvalidOperationException("Profile has not been configured. Use MapperConfiguration to register this profile.");
+            return _configuration.CreateMap<TSource, TDestination>();
         }
 
-        return _configuration.CreateMap<TSource, TDestination>();
+        var deferred = new DeferredMappingExpression<TSource, TDestination>();
+        _pendingConfigurations.Add(config =>
+        {
+            var map = config.CreateMap<TSource, TDestination>();
+            deferred.Replay(map);
+        });
+
+        return deferred;
     }
 
     /// <summary>
@@ -44,7 +53,14 @@ public abstract class MappingProfile
     internal void Configure(MapperConfiguration configuration)
     {
         _configuration = configuration;
-        ConfigureMappings();
+        ConfigureMappings(); // Allow overrides if used
+
+        // Execute pending actions from Constructor
+        foreach (var action in _pendingConfigurations)
+        {
+            action(configuration);
+        }
+        _pendingConfigurations.Clear();
     }
 
     /// <summary>
@@ -54,5 +70,75 @@ public abstract class MappingProfile
     {
         // Default implementation does nothing.
         // Mappings can be configured either here or in the constructor.
+    }
+
+    private class DeferredMappingExpression<TSource, TDestination> : IMappingExpression<TSource, TDestination>
+    {
+        private readonly List<Action<IMappingExpression<TSource, TDestination>>> _actions = [];
+
+        public void Replay(IMappingExpression<TSource, TDestination> realExpression)
+        {
+            foreach (var action in _actions)
+            {
+                action(realExpression);
+            }
+        }
+
+        public IMappingExpression<TSource, TDestination> ForMember<TMember>(
+            Expression<Func<TDestination, TMember>> destinationMember, 
+            Action<IMemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions)
+        {
+            _actions.Add(e => e.ForMember(destinationMember, memberOptions));
+            return this;
+        }
+
+
+
+        public IMappingExpression<TDestination, TSource> ReverseMap()
+        {
+            var reverseDeferred = new DeferredMappingExpression<TDestination, TSource>();
+            _actions.Add(forwardExpr => 
+            {
+                var reverseExpr = forwardExpr.ReverseMap();
+                reverseDeferred.Replay(reverseExpr);
+            });
+            return reverseDeferred;
+        }
+
+        public IMappingExpression<TSource, TDestination> ConstructUsing(Func<TSource, TDestination> ctor)
+        {
+            _actions.Add(e => e.ConstructUsing(ctor));
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> BeforeMap(Action<TSource, TDestination> beforeFunction)
+        {
+            _actions.Add(e => e.BeforeMap(beforeFunction));
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> AfterMap(Action<TSource, TDestination> afterFunction)
+        {
+            _actions.Add(e => e.AfterMap(afterFunction));
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> IncludeBase<TOtherSource, TOtherDestination>()
+        {
+            _actions.Add(e => e.IncludeBase<TOtherSource, TOtherDestination>());
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> Condition(Func<TSource, bool> condition)
+        {
+            _actions.Add(e => e.Condition(condition));
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> ForAllMembers(Action<IMemberConfigurationExpression<TSource, TDestination, object>> memberOptions)
+        {
+            _actions.Add(e => e.ForAllMembers(memberOptions));
+            return this;
+        }
     }
 }

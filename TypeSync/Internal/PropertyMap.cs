@@ -1,15 +1,17 @@
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace TypeSync.Internal;
 
 /// <summary>
 /// Represents mapping configuration for a single property.
 /// </summary>
-internal class PropertyMap
+public class PropertyMap
 {
     public PropertyInfo DestinationProperty { get; }
     public PropertyInfo? SourceProperty { get; set; }
     public string[]? SourcePropertyPath { get; set; }
+    public LambdaExpression? SourceExpression { get; set; } // Added for ProjectTo support
     public Func<object, object?>? CustomResolver { get; set; }
     public Func<object, bool>? Condition { get; set; }
     public Func<object, object, bool>? ConditionWithDest { get; set; }

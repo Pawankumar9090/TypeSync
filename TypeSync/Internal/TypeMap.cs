@@ -5,7 +5,7 @@ namespace TypeSync.Internal;
 /// <summary>
 /// Represents mapping configuration between a source and destination type.
 /// </summary>
-internal class TypeMap
+public class TypeMap
 {
     public Type SourceType { get; }
     public Type DestinationType { get; }

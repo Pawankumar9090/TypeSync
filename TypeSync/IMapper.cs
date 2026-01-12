@@ -6,6 +6,19 @@ namespace TypeSync;
 public interface IMapper
 {
     /// <summary>
+    /// Gets the configuration provider.
+    /// </summary>
+    IConfigurationProvider ConfigurationProvider { get; }
+
+    /// <summary>
+    /// Projects a queryable to the destination type.
+    /// </summary>
+    /// <typeparam name="TDestination">Destination type.</typeparam>
+    /// <param name="source">Source queryable.</param>
+    /// <returns>Projected queryable.</returns>
+    IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source);
+
+    /// <summary>
     /// Maps a source object to a new destination object.
     /// </summary>
     /// <typeparam name="TSource">Source type.</typeparam>
