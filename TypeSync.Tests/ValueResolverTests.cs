@@ -122,7 +122,7 @@ public class ValueResolverTests
         {
             cfg.CreateMap<User, UserDto>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom<FullNameResolver>())
-                .ForMember(dest => dest.Email, opt => opt.MapFrom((Func<User, string>)(src => src.Email.ToLower())));
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email.ToLower()));
         });
         var mapper = config.CreateMapper();
 

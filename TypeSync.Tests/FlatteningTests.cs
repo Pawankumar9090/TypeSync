@@ -133,7 +133,7 @@ public class FlatteningTests
         var config = new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<Order, OrderDto>()
-                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom((Func<Order, string>)(src => src.Customer.Name.ToUpper())));
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Name.ToUpper()));
         });
         var mapper = config.CreateMapper();
 

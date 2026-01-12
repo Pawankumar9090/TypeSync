@@ -84,7 +84,7 @@ public class ReverseMapTests
                 .ForMember(dest => dest.Price, opt =>
                 {
                     reverseConfigured = true;
-                    opt.MapFrom((Func<ProductDto, decimal>)(src => src.Price * 1.1m)); // Apply 10% markup on reverse
+                    opt.MapFrom(src => src.Price * 1.1m); // Apply 10% markup on reverse
                 });
         });
         var mapper = config.CreateMapper();
@@ -106,7 +106,7 @@ public class ReverseMapTests
         var config = new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<User, UserDto>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom((Func<User, string>)(src => $"{src.FirstName} {src.LastName}")))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
                 .ReverseMap();
         });
         var mapper = config.CreateMapper();

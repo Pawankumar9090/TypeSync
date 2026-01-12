@@ -13,6 +13,7 @@ internal class PropertyMap
     public Func<object, object?>? CustomResolver { get; set; }
     public Func<object, bool>? Condition { get; set; }
     public Func<object, object, bool>? ConditionWithDest { get; set; }
+    public Func<object, object, object?, bool>? ConditionWithSourceMember { get; set; }
     public object? NullSubstitute { get; set; }
     public bool HasNullSubstitute { get; set; }
     public bool Ignored { get; set; }

@@ -10,7 +10,7 @@ public class UserMappingProfile : MappingProfile
     protected override void ConfigureMappings()
     {
         CreateMap<User, UserDto>()
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom((Func<User, string>)(src => $"{src.FirstName} {src.LastName}")));
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
     }
 }
 

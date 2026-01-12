@@ -133,6 +133,16 @@ internal class MappingEngine
             {
                 var value = ResolveValue(source, destination, propertyMap, options);
                 
+                // Check condition that requires the resolved value
+                if (propertyMap.ConditionWithSourceMember != null)
+                {
+                    var conditionResult = propertyMap.ConditionWithSourceMember(source, destination, value);
+                    if (!conditionResult)
+                    {
+                        continue;
+                    }
+                }
+                
                 if (value == null && propertyMap.HasNullSubstitute)
                 {
                     value = propertyMap.NullSubstitute;

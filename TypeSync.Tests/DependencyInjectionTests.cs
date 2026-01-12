@@ -38,7 +38,7 @@ public class DependencyInjectionTests
         services.AddTypeSync(cfg =>
         {
             cfg.CreateMap<User, UserDto>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom((Func<User, string>)(src => $"{src.FirstName} {src.LastName}")));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
         });
 
         var provider = services.BuildServiceProvider();

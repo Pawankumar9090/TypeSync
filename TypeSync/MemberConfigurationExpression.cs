@@ -25,11 +25,7 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember> : IMe
         _propertyMap.CustomResolver = source => compiled((TSource)source);
     }
 
-    /// <inheritdoc/>
-    public void MapFrom(Func<TSource, TMember> resolver)
-    {
-        _propertyMap.CustomResolver = source => resolver((TSource)source);
-    }
+
 
     /// <inheritdoc/>
     public void MapFrom<TValueResolver>() where TValueResolver : IValueResolver<TSource, TDestination, TMember>, new()
@@ -53,6 +49,12 @@ public class MemberConfigurationExpression<TSource, TDestination, TMember> : IMe
     public void Condition(Func<TSource, TDestination, bool> condition)
     {
         _propertyMap.ConditionWithDest = (source, dest) => condition((TSource)source, (TDestination)dest);
+    }
+
+    /// <inheritdoc/>
+    public void Condition(Func<TSource, TDestination, object?, bool> condition)
+    {
+        _propertyMap.ConditionWithSourceMember = (source, dest, member) => condition((TSource)source, (TDestination)dest, member);
     }
 
     /// <inheritdoc/>

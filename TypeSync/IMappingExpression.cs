@@ -85,12 +85,6 @@ public interface IMemberConfigurationExpression<TSource, TDestination, TMember>
     void MapFrom<TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember);
 
     /// <summary>
-    /// Maps using a custom function.
-    /// </summary>
-    /// <param name="resolver">Function to resolve the value.</param>
-    void MapFrom(Func<TSource, TMember> resolver);
-
-    /// <summary>
     /// Maps using a value resolver.
     /// </summary>
     /// <typeparam name="TValueResolver">Value resolver type.</typeparam>
@@ -112,6 +106,12 @@ public interface IMemberConfigurationExpression<TSource, TDestination, TMember>
     /// </summary>
     /// <param name="condition">Condition predicate.</param>
     void Condition(Func<TSource, TDestination, bool> condition);
+
+    /// <summary>
+    /// Sets a condition for mapping this member with source, destination, and source member value.
+    /// </summary>
+    /// <param name="condition">Condition predicate.</param>
+    void Condition(Func<TSource, TDestination, object?, bool> condition);
 
     /// <summary>
     /// Specifies a value to use when source is null.

@@ -100,7 +100,7 @@ public class ConstructUsingTests
         {
             cfg.CreateMap<User, UserDto>()
                 .ConstructUsing(src => new UserDto { MappedAt = DateTime.UtcNow })
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom((Func<User, string>)(src => $"{src.FirstName} {src.LastName}")));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
         });
         var mapper = config.CreateMapper();
 
