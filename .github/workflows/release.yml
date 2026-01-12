@@ -19,11 +19,15 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
       
+    - name: Clean
+      run: dotnet clean --configuration Release
+      
     - name: Build
       run: dotnet build --no-restore --configuration Release
       
     - name: Pack
-      run: dotnet pack --no-build --configuration Release --output .
+      run: dotnet pack --no-build --configuration Release --output ./nupkgs
       
     - name: Push to NuGet
-      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+
