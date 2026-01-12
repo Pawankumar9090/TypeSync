@@ -5,10 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.1] - 2026-01-12
 
-### Added
-- Nothing yet
+### Fixed
+- Resolved `CS0121` ambiguity error by removing the `MapFrom(Func)` overload.
+- Fixed `CS1593` by implementing a new 3-argument `Condition` overload: `Condition((src, dest, srcMember) => ...)`.
+- Fixed type inference issues (`CS0411`) in tests by removing redundant explicit casts.
+
+### Changed
+- `MapFrom` now exclusively uses `Expression`-based configuration for better property inspection and validation.
+
 
 ## [1.0.0] - 2026-01-10
 
@@ -34,5 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nested property resolution depth limited to 10 levels
 - Debug logging for troubleshooting without exposing sensitive data
 
-[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Pawankumar9090/TypeSync/releases/tag/v1.0.0
