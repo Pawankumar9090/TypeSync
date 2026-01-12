@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-01-12
+
+### Fixed
+- **ProjectTo Collection Mapping**: Fixed `InvalidCastException` when projecting to nullable `List<T>?` destination properties
+- **Nested Object Mapping**: Added support for mapping nested complex types in ProjectTo (e.g., `Class` → `ClassResponse`) with proper null checking
+- **Null-Safe MapFrom**: Replaced try-catch exception handling with `NullSafeEvaluator` that walks expression trees and checks for null at each property access step
+- **Type Conversion**: Improved type conversion logic to properly handle assignable types and skip incompatible collection conversions
+
+### Added
+- `NullSafeEvaluator` utility class for safe expression evaluation
+- `ExpressionReplacer` helper for inlining nested projection expressions
+- `TryGetNestedObjectProjection` method for recursive nested type mapping
+- Helper methods: `IsCollectionType`, `IsImplicitlyConvertible`, `IsNumericType`
+
 ## [1.0.1] - 2026-01-12
 
 ### Fixed
@@ -40,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nested property resolution depth limited to 10 levels
 - Debug logging for troubleshooting without exposing sensitive data
 
-[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Pawankumar9090/TypeSync/releases/tag/v1.0.0
