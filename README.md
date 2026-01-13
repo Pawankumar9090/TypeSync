@@ -12,7 +12,8 @@ A lightweight, convention-based object-to-object mapping library for .NET 8. Sim
 - ✅ **Fluent configuration API** - Configure mappings using `CreateMap`, `ForMember`, `ReverseMap`
 - ✅ **Profiles** - Organize mappings into reusable profile classes
 - ✅ **Flattening** - Map nested properties (e.g., `Customer.Name` → `CustomerName`)
-- ✅ **Collection mapping** - Automatic list and array mapping
+- ✅ **Collection mapping** - Automatic list, array, and ICollection mapping with element type conversion
+- ✅ **ProjectTo** - IQueryable projection for efficient EF Core queries
 - ✅ **Custom value resolvers** - Implement `IValueResolver` for complex transformations
 - ✅ **Conditional mapping** - Skip properties based on conditions
 - ✅ **Null substitution** - Provide default values for null properties
@@ -144,6 +145,60 @@ var config = new MapperConfiguration(cfg =>
 });
 ```
 
+### Collection Property Mapping
+
+TypeSync automatically maps collection properties when the element types have a defined mapping:
+
+```csharp
+public class Provider
+{
+    public string Name { get; set; }
+    public ICollection<Address> Areas { get; set; }
+}
+
+public class ProviderDto
+{
+    public string Name { get; set; }
+    public ICollection<AddressDto> Areas { get; set; }  // Collection is mapped automatically!
+}
+
+var config = new MapperConfiguration(cfg =>
+{
+    cfg.CreateMap<Provider, ProviderDto>();
+    cfg.CreateMap<Address, AddressDto>().ReverseMap();
+});
+
+var provider = new Provider 
+{ 
+    Name = "Test",
+    Areas = new List<Address> { new Address { City = "Delhi" } }
+};
+
+var dto = mapper.Map<Provider, ProviderDto>(provider);
+// dto.Areas contains the mapped AddressDto items
+```
+
+**Supported Collection Types:**
+- `IEnumerable<T>`, `ICollection<T>`, `IList<T>`
+- `List<T>`, `HashSet<T>`
+- `T[]` (arrays)
+
+### ProjectTo (IQueryable Projection)
+
+Use `ProjectTo<T>` for efficient database queries with Entity Framework:
+
+```csharp
+using TypeSync.QueryableExtensions;
+
+// In your repository or service
+var items = await dbContext.Providers
+    .Where(p => p.IsActive)
+    .ProjectTo<ProviderDto>(_mapper.ConfigurationProvider)
+    .ToListAsync();
+```
+
+This generates optimized SQL that only selects the required columns, including nested collections.
+
 ### Advanced Features
 
 ```csharp
@@ -204,6 +259,7 @@ config.AssertConfigurationIsValid();
 - `TDestination Map<TSource, TDestination>(TSource source)` - Map to new object
 - `TDestination Map<TDestination>(object source)` - Map using runtime type
 - `void Map<TSource, TDestination>(TSource source, TDestination destination)` - Map to existing object
+- `IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source)` - Project queryable to destination type
 
 ### MapperConfiguration
 - `CreateMap<TSource, TDestination>()` - Create a type mapping

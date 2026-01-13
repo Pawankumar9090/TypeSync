@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-01-13
+
+### Fixed
+- **Collection Property Mapping (Map)**: Fixed issue where collection properties (e.g., `ICollection<AddressDto>` → `ICollection<Address>`) were not being mapped when using `Map<T>()`. The `MapValueIfNeeded` method now properly detects and maps collection types for object properties.
+- **ProjectTo ICollection Destination**: Fixed `ProjectTo<T>` not mapping collections when destination property is `ICollection<T>`. Added explicit handling to call `ToList()` since `List<T>` implements `ICollection<T>`.
+
+### Added
+- Full support for mapping collection properties with different element types in both `Map<T>()` and `ProjectTo<T>()`
+- New test: `ProjectTo_ShouldMapToICollectionDestination`
+- Enabled previously skipped tests for nested collection mapping
+
+### Collection Types Supported
+All common collection types now work seamlessly:
+- `IEnumerable<T>` ↔ `IEnumerable<T>`
+- `ICollection<T>` ↔ `ICollection<T>`
+- `List<T>` ↔ `List<T>`
+- `T[]` ↔ `T[]`
+- Mixed types (e.g., `List<T>` → `ICollection<T>`)
+
+
 ## [1.0.2] - 2026-01-12
 
 ### Fixed
@@ -54,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nested property resolution depth limited to 10 levels
 - Debug logging for troubleshooting without exposing sensitive data
 
-[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Pawankumar9090/TypeSync/releases/tag/v1.0.0

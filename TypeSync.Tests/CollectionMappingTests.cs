@@ -35,7 +35,7 @@ public class CollectionMappingTests
         result[2].Id.Should().Be(3);
     }
 
-    [Fact(Skip = "TypeSync does not yet support automatic nested collection property mapping")]
+    [Fact]
     public void Map_ArrayToArray_ShouldMapAllItems()
     {
         // Arrange
@@ -90,7 +90,7 @@ public class CollectionMappingTests
         result.Should().HaveCount(2);
     }
 
-    [Fact(Skip = "TypeSync does not yet support automatic nested collection property mapping")]
+    [Fact]
     public void Map_NestedCollection_ShouldMapRecursively()
     {
         // Arrange
@@ -189,7 +189,7 @@ public class CollectionMappingTests
         result[2].Should().NotBeNull();
     }
 
-    [Fact(Skip = "TypeSync does not yet support automatic nested collection property mapping")]
+    [Fact]
     public void Map_ListOfCategories_ShouldMapNestedCollections()
     {
         // Arrange

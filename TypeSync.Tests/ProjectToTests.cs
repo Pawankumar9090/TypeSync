@@ -284,4 +284,46 @@ public class ProjectToTests
     {
         public string Description { get; set; }
     }
+
+    // Test for ICollection<T> destination type which was previously not working
+    public class DestinationWithICollection
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public ICollection<NestedDto> NestedCollection { get; set; }
+    }
+
+    [Fact]
+    public void ProjectTo_ShouldMapToICollectionDestination()
+    {
+        // Arrange - This tests the fix for mapping to ICollection<T> destination
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<SourceWithCollection, DestinationWithICollection>();
+            cfg.CreateMap<Nested, NestedDto>();
+        });
+
+        var sourceList = new List<SourceWithCollection>
+        {
+            new SourceWithCollection
+            { 
+                Id = 1, 
+                Name = "Test",
+                NestedCollection = new List<Nested> 
+                { 
+                    new Nested { Description = "Item1" },
+                    new Nested { Description = "Item2" }
+                }
+            }
+        }.AsQueryable();
+
+        // Act
+        var result = sourceList.ProjectTo<DestinationWithICollection>(config).ToList();
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].NestedCollection.Should().NotBeNull();
+        result[0].NestedCollection.Should().HaveCount(2);
+        result[0].NestedCollection.First().Description.Should().Be("Item1");
+    }
 }

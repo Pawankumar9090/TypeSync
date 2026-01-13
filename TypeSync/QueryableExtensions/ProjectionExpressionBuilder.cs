@@ -187,7 +187,15 @@ internal class ProjectionExpressionBuilder
                     return Expression.Call(toArrayMethod, selectCall);
                 }
 
-                // If destination is IEnumerable / ICollection compatibility
+                // If destination is ICollection<T>, call ToList() since List<T> implements ICollection<T>
+                if (destPropType.IsGenericType && destPropType.GetGenericTypeDefinition() == typeof(ICollection<>))
+                {
+                    var toListMethod = typeof(Enumerable).GetMethod("ToList")!
+                        .MakeGenericMethod(destElementType);
+                    return Expression.Call(toListMethod, selectCall);
+                }
+
+                // If destination is IEnumerable / IList compatibility
                  return selectCall;
             }
         }

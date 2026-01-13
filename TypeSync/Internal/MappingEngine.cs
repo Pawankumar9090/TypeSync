@@ -231,8 +231,15 @@ internal class MappingEngine
             return value;
         }
 
-        // Check if we have a mapping for nested objects
         var actualSourceType = value.GetType();
+
+        // Handle collection types for property mapping
+        if (IsCollection(destType) && IsCollection(actualSourceType))
+        {
+            return MapCollection(value, actualSourceType, destType, options);
+        }
+
+        // Check if we have a mapping for nested objects
         if (_typeMaps.ContainsKey((actualSourceType, destType)) || IsComplexType(destType))
         {
             return Map(value, actualSourceType, destType, options);

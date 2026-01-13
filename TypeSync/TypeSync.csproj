@@ -7,7 +7,7 @@
     
     <!-- NuGet Package Metadata -->
     <PackageId>TypeSync</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Pawan Kumar</Authors>
     <Company>Pawan Kumar</Company>
     <Description>A lightweight, convention-based object-to-object mapping library for .NET. Similar to AutoMapper with fluent API, profile support, and dependency injection integration.</Description>
