@@ -111,4 +111,10 @@ public class Mapper : IMapper
     {
         return source.ProjectTo<TDestination>(ConfigurationProvider);
     }
+
+    /// <inheritdoc/>
+    public IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source, MapOptions options)
+    {
+        return source.ProjectTo<TDestination>(ConfigurationProvider, options);
+    }
 }

@@ -326,4 +326,134 @@ public class ProjectToTests
         result[0].NestedCollection.Should().HaveCount(2);
         result[0].NestedCollection.First().Description.Should().Be("Item1");
     }
+
+    #region Runtime MapOptions Tests
+
+    [Fact]
+    public void ProjectTo_WithMapOptions_ShouldIgnoreSpecifiedProperty()
+    {
+        // Arrange
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<Source, Destination>();
+        });
+
+        var sourceList = new List<Source>
+        {
+            new Source { Id = 1, Name = "Test" }
+        }.AsQueryable();
+
+        var options = new MapOptions("Name");
+
+        // Act
+        var result = sourceList.ProjectTo<Destination>(config, options).ToList();
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(1);
+        result[0].Name.Should().BeNull(); // Ignored at runtime
+    }
+
+    [Fact]
+    public void ProjectTo_WithMapOptions_ShouldIgnoreMultipleProperties()
+    {
+        // Arrange
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<Source, Destination>();
+        });
+
+        var sourceList = new List<Source>
+        {
+            new Source { Id = 1, Name = "Test", SourceNested = new Nested { Description = "Nested" } }
+        }.AsQueryable();
+
+        var options = new MapOptions("Name", "SourceNestedDescription");
+
+        // Act
+        var result = sourceList.ProjectTo<Destination>(config, options).ToList();
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(1);
+        result[0].Name.Should().BeNull();
+        result[0].SourceNestedDescription.Should().BeNull(); // Flattened property also ignored
+    }
+
+    [Fact]
+    public void ProjectTo_WithEmptyMapOptions_ShouldMapNormally()
+    {
+        // Arrange
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<Source, Destination>();
+        });
+
+        var sourceList = new List<Source>
+        {
+            new Source { Id = 1, Name = "Test" }
+        }.AsQueryable();
+
+        var options = new MapOptions();
+
+        // Act
+        var result = sourceList.ProjectTo<Destination>(config, options).ToList();
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(1);
+        result[0].Name.Should().Be("Test");
+    }
+
+    [Fact]
+    public void ProjectTo_WithMapOptions_CaseInsensitive_ShouldIgnore()
+    {
+        // Arrange
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<Source, Destination>();
+        });
+
+        var sourceList = new List<Source>
+        {
+            new Source { Id = 1, Name = "Test" }
+        }.AsQueryable();
+
+        var options = new MapOptions("NAME"); // Different case
+
+        // Act
+        var result = sourceList.ProjectTo<Destination>(config, options).ToList();
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Name.Should().BeNull(); // Should still be ignored
+    }
+
+    [Fact]
+    public void ProjectTo_WithMapOptions_ViaMapper_ShouldWork()
+    {
+        // Arrange
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<Source, Destination>();
+        });
+        var mapper = config.CreateMapper();
+
+        var sourceList = new List<Source>
+        {
+            new Source { Id = 1, Name = "Test" }
+        }.AsQueryable();
+
+        var options = new MapOptions("Name");
+
+        // Act
+        var result = mapper.ProjectTo<Destination>(sourceList, options).ToList();
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(1);
+        result[0].Name.Should().BeNull();
+    }
+
+    #endregion
 }

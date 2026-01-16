@@ -8,10 +8,12 @@ namespace TypeSync.QueryableExtensions;
 internal class ProjectionExpressionBuilder
 {
     private readonly IConfigurationProvider _configurationProvider;
+    private readonly MapOptions? _options;
 
-    public ProjectionExpressionBuilder(IConfigurationProvider configurationProvider)
+    public ProjectionExpressionBuilder(IConfigurationProvider configurationProvider, MapOptions? options = null)
     {
         _configurationProvider = configurationProvider;
+        _options = options;
     }
 
     public Expression<Func<TSource, TDestination>> GetProjection<TSource, TDestination>()
@@ -27,9 +29,15 @@ internal class ProjectionExpressionBuilder
 
         foreach (var destProp in destProps)
         {
+            // 1. Check runtime ignore list first (case-insensitive)
+            if (_options?.IgnoreProperties.Contains(destProp.Name) == true)
+            {
+                continue;
+            }
+
             var propertyMap = typeMap?.PropertyMaps.FirstOrDefault(pm => pm.DestinationProperty.Name == destProp.Name);
 
-            // 1. Check if ignored
+            // 2. Check if ignored at configuration time
             if (propertyMap?.Ignored == true)
             {
                 continue;
@@ -37,13 +45,13 @@ internal class ProjectionExpressionBuilder
 
             Expression? sourceExpression = null;
 
-            // 2. Custom MapFrom (Expression-based only)
+            // 3. Custom MapFrom (Expression-based only)
             if (propertyMap?.SourceExpression != null)
             {
                 // Replace parameter in the source expression with our sourceParam
                 sourceExpression = ReplaceParameter(propertyMap.SourceExpression, sourceParam);
             }
-            // 3. Name matching
+            // 4. Name matching
             else
             {
                 var sourceProp = typeof(TSource).GetProperty(destProp.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
@@ -58,7 +66,7 @@ internal class ProjectionExpressionBuilder
                         sourceExpression = collectionProj;
                     }
                 }
-                // 4. Flattening (e.g., CustomerName -> Customer.Name)
+                // 5. Flattening (e.g., CustomerName -> Customer.Name)
                 else
                 {
                     // Basic flattening support

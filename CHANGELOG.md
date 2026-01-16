@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-01-16
+
+### Added
+- **Runtime Property Ignore for ProjectTo**: Added `MapOptions` support to `ProjectTo<T>()` method, enabling runtime property ignore functionality matching the existing `Map<T>()` capability.
+- New overload: `IMapper.ProjectTo<T>(IQueryable source, MapOptions options)`
+- New overload: `IQueryable.ProjectTo<T>(IConfigurationProvider config, MapOptions options)`
+- Case-insensitive property name matching for ignore list
+- 5 new test cases for `ProjectTo` with `MapOptions`
+
+### Usage Example
+```csharp
+// Ignore specific properties at runtime during projection
+var options = new MapOptions("Password", "SecretKey");
+var results = query.ProjectTo<UserDto>(config, options);
+
+// Or via IMapper
+var results = mapper.ProjectTo<UserDto>(query, options);
+```
+
 ## [1.0.3] - 2026-01-13
 
 ### Fixed
@@ -74,8 +93,10 @@ All common collection types now work seamlessly:
 - Nested property resolution depth limited to 10 levels
 - Debug logging for troubleshooting without exposing sensitive data
 
-[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Pawankumar9090/TypeSync/releases/tag/v1.0.0
+

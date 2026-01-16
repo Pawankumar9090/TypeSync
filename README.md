@@ -199,6 +199,26 @@ var items = await dbContext.Providers
 
 This generates optimized SQL that only selects the required columns, including nested collections.
 
+### Runtime Property Ignore
+
+Use `MapOptions` to ignore properties at runtime for both `Map` and `ProjectTo`:
+
+```csharp
+// For Map
+var options = new MapOptions("Password", "SecretKey");
+var dto = mapper.Map<User, UserDto>(user, options);
+
+// For ProjectTo
+var results = query.ProjectTo<UserDto>(config, new MapOptions("Password"));
+
+// Or via IMapper
+var results = mapper.ProjectTo<UserDto>(query, new MapOptions("InternalField"));
+
+// Fluent syntax
+var options = new MapOptions().Ignore("Email").Ignore("Phone");
+var dto = mapper.Map<User, UserDto>(user, options);
+```
+
 ### Advanced Features
 
 ```csharp
@@ -257,9 +277,11 @@ config.AssertConfigurationIsValid();
 
 ### IMapper
 - `TDestination Map<TSource, TDestination>(TSource source)` - Map to new object
+- `TDestination Map<TSource, TDestination>(TSource source, MapOptions options)` - Map with runtime options
 - `TDestination Map<TDestination>(object source)` - Map using runtime type
 - `void Map<TSource, TDestination>(TSource source, TDestination destination)` - Map to existing object
 - `IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source)` - Project queryable to destination type
+- `IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source, MapOptions options)` - Project with runtime options
 
 ### MapperConfiguration
 - `CreateMap<TSource, TDestination>()` - Create a type mapping

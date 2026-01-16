@@ -19,6 +19,15 @@ public interface IMapper
     IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source);
 
     /// <summary>
+    /// Projects a queryable to the destination type with runtime options.
+    /// </summary>
+    /// <typeparam name="TDestination">Destination type.</typeparam>
+    /// <param name="source">Source queryable.</param>
+    /// <param name="options">Runtime mapping options (e.g., properties to ignore).</param>
+    /// <returns>Projected queryable.</returns>
+    IQueryable<TDestination> ProjectTo<TDestination>(IQueryable source, MapOptions options);
+
+    /// <summary>
     /// Maps a source object to a new destination object.
     /// </summary>
     /// <typeparam name="TSource">Source type.</typeparam>
