@@ -142,6 +142,18 @@ internal static class NullSafeEvaluator
     {
         try
         {
+            // Handle lambda expressions (e.g., x => x.Price) - compile them for use with LINQ methods
+            if (expr is LambdaExpression lambdaExpr)
+            {
+                return lambdaExpr.Compile();
+            }
+            
+            // Handle UnaryExpression wrapping a lambda (e.g., Quote expressions)
+            if (expr is UnaryExpression unaryExpr && unaryExpr.Operand is LambdaExpression quotedLambda)
+            {
+                return quotedLambda.Compile();
+            }
+            
             var lambda = Expression.Lambda<Func<object>>(Expression.Convert(expr, typeof(object)));
             var compiled = lambda.Compile();
             return compiled();
@@ -154,15 +166,23 @@ internal static class NullSafeEvaluator
     
     private static object? InvokeMethod(object? target, MethodCallInfo methodCall)
     {
-        if (methodCall.IsExtensionMethod)
+        try
         {
-            // For extension methods, pass target as first argument
-            var args = new object?[] { target }.Concat(methodCall.Arguments.Skip(1)).ToArray();
-            return methodCall.Method.Invoke(null, args);
+            if (methodCall.IsExtensionMethod)
+            {
+                // For extension methods, pass target as first argument
+                var args = new object?[] { target }.Concat(methodCall.Arguments.Skip(1)).ToArray();
+                return methodCall.Method.Invoke(null, args);
+            }
+            else
+            {
+                return methodCall.Method.Invoke(target, methodCall.Arguments);
+            }
         }
-        else
+        catch
         {
-            return methodCall.Method.Invoke(target, methodCall.Arguments);
+            // Handle exceptions from methods like Min/Max/Sum on empty sequences
+            return null;
         }
     }
     

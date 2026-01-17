@@ -168,7 +168,11 @@ internal class MappingEngine
         // Custom resolver takes priority
         if (propertyMap.CustomResolver != null)
         {
-            return propertyMap.CustomResolver(source);
+            var value = propertyMap.CustomResolver(source);
+            if (value == null) return null;
+            
+            // Apply mapping to the resolved value (handles collections and nested objects)
+            return MapValueIfNeeded(value, value.GetType(), propertyMap.DestinationProperty.PropertyType, options);
         }
 
         // Value resolver type
@@ -300,7 +304,25 @@ internal class MappingEngine
 
         if (type.IsGenericType)
         {
-            return type.GetGenericArguments().FirstOrDefault();
+            // For generic collections like List<T>, IEnumerable<T>
+            var genericTypeDef = type.GetGenericTypeDefinition();
+            if (genericTypeDef == typeof(IEnumerable<>) || 
+                genericTypeDef == typeof(ICollection<>) ||
+                genericTypeDef == typeof(IList<>) ||
+                genericTypeDef == typeof(List<>) ||
+                genericTypeDef == typeof(HashSet<>))
+            {
+                return type.GetGenericArguments().FirstOrDefault();
+            }
+        }
+        
+        // For LINQ iterator types (e.g., SelectICollectionIterator<,>), find IEnumerable<T> interface
+        var enumerableInterface = type.GetInterfaces()
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+        
+        if (enumerableInterface != null)
+        {
+            return enumerableInterface.GetGenericArguments().FirstOrDefault();
         }
 
         return null;

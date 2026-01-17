@@ -231,4 +231,75 @@ public class CollectionMappingTests
         result[0].Products.Should().HaveCount(1);
         result[1].Products.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void Map_ForMemberWithSelectExpression_ShouldMapCollectionElements()
+    {
+        // Arrange - simulates join table pattern like ServicePests -> Pest
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<Pest, PestDto>();
+            cfg.CreateMap<ServiceEntity, ServiceDto>()
+                .ForMember(dest => dest.Pests, opt => opt.MapFrom(src => src.ServicePests.Select(sp => sp.Pest)));
+        });
+        var mapper = config.CreateMapper();
+
+        var service = new ServiceEntity
+        {
+            Id = 1,
+            Name = "Pest Control",
+            ServicePests = new List<ServicePest>
+            {
+                new() { PestId = 1, Pest = new Pest { Id = 1, Name = "Ant" } },
+                new() { PestId = 2, Pest = new Pest { Id = 2, Name = "Roach" } },
+                new() { PestId = 3, Pest = new Pest { Id = 3, Name = "Spider" } }
+            }
+        };
+
+        // Act
+        var result = mapper.Map<ServiceEntity, ServiceDto>(service);
+
+        // Assert
+        result.Id.Should().Be(1);
+        result.Name.Should().Be("Pest Control");
+        result.Pests.Should().HaveCount(3);
+        result.Pests.First().Id.Should().Be(1);
+        result.Pests.First().Name.Should().Be("Ant");
+        result.Pests.Last().Name.Should().Be("Spider");
+    }
 }
+
+// Test models for join table pattern
+public class ServiceEntity
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public ICollection<ServicePest> ServicePests { get; set; } = new List<ServicePest>();
+}
+
+public class ServicePest
+{
+    public int ServiceId { get; set; }
+    public int PestId { get; set; }
+    public Pest Pest { get; set; } = null!;
+}
+
+public class Pest
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+}
+
+public class ServiceDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public IEnumerable<PestDto> Pests { get; set; } = Enumerable.Empty<PestDto>();
+}
+
+public class PestDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+}
+

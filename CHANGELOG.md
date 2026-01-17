@@ -5,14 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2026-01-17
+
+### Fixed
+- **ForMember MapFrom with Select Expressions**: Fixed issue where `ForMember` with `MapFrom` containing LINQ `.Select()` expressions (e.g., `src => src.ServicePests.Select(s => s.Pest)`) did not map nested collection elements. The `MappingEngine.ResolveValue` now applies `MapValueIfNeeded` after `CustomResolver` returns.
+- **LINQ Iterator Element Type Detection**: Enhanced `GetElementType` to find `IEnumerable<T>` interface for LINQ iterator types (e.g., `SelectICollectionIterator<,>`), ensuring proper collection mapping for deferred LINQ queries.
+- **Min/Max on Empty Collections**: Fixed "Nullable object must have a value" error when using `.Min()`, `.Max()`, `.Sum()` in `MapFrom` expressions on empty collections. The `NullSafeEvaluator` now properly handles lambda expressions and gracefully catches exceptions from aggregate functions.
+
+### Usage Example
+```csharp
+// Now works with .Select() expressions
+CreateMap<Service, ServiceResponse>()
+    .ForMember(dest => dest.ServicePests, opt => opt.MapFrom(src => src.ServicePests.Select(s => s.Pest)));
+
+// Min on empty collection returns default (0) instead of throwing
+CreateMap<Plan, PlanDto>()
+    .ForMember(dest => dest.MinPrice, opt => opt.MapFrom(src => src.HouseTypes.Min(x => x.Price)));
+```
+
 ## [1.0.4] - 2026-01-16
 
 ### Added
 - **Runtime Property Ignore for ProjectTo**: Added `MapOptions` support to `ProjectTo<T>()` method, enabling runtime property ignore functionality matching the existing `Map<T>()` capability.
-- New overload: `IMapper.ProjectTo<T>(IQueryable source, MapOptions options)`
-- New overload: `IQueryable.ProjectTo<T>(IConfigurationProvider config, MapOptions options)`
-- Case-insensitive property name matching for ignore list
-- 5 new test cases for `ProjectTo` with `MapOptions`
+  - New overload: `IMapper.ProjectTo<T>(IQueryable source, MapOptions options)`
+  - New overload: `IQueryable.ProjectTo<T>(IConfigurationProvider config, MapOptions options)`
+  - Case-insensitive property name matching for ignore list
+  - 5 new test cases for `ProjectTo` with `MapOptions`
 
 ### Usage Example
 ```csharp
@@ -23,6 +41,7 @@ var results = query.ProjectTo<UserDto>(config, options);
 // Or via IMapper
 var results = mapper.ProjectTo<UserDto>(query, options);
 ```
+
 
 ## [1.0.3] - 2026-01-13
 
@@ -93,7 +112,8 @@ All common collection types now work seamlessly:
 - Nested property resolution depth limited to 10 levels
 - Debug logging for troubleshooting without exposing sensitive data
 
-[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/Pawankumar9090/TypeSync/compare/v1.0.1...v1.0.2

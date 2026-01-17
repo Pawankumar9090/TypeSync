@@ -253,4 +253,71 @@ public class ForMemberTests
         resultMapped.FirstName.Should().Be("John");
         resultSkipped.FirstName.Should().BeNull(); // Should be skipped
     }
+
+    [Fact]
+    public void ForMember_MapFromWithMinOnEmptyCollection_ShouldReturnDefault()
+    {
+        // Arrange - Simulates: .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.PlanHouseTypes.Min(x => x.Price)))
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<Plan, PlanDto>()
+                .ForMember(dest => dest.MinPrice, opt => opt.MapFrom(src => src.HouseTypes.Min(x => x.Price)));
+        });
+        var mapper = config.CreateMapper();
+
+        // Plan with empty HouseTypes collection
+        var planWithEmptyCollection = new Plan
+        {
+            Id = 1,
+            Name = "Basic Plan",
+            HouseTypes = new List<HouseType>() // Empty!
+        };
+
+        // Plan with items
+        var planWithItems = new Plan
+        {
+            Id = 2,
+            Name = "Premium Plan",
+            HouseTypes = new List<HouseType>
+            {
+                new() { Id = 1, Price = 100m },
+                new() { Id = 2, Price = 50m },
+                new() { Id = 3, Price = 75m }
+            }
+        };
+
+        // Act - Should not throw "Nullable object must have a value"
+        var resultEmpty = mapper.Map<Plan, PlanDto>(planWithEmptyCollection);
+        var resultWithItems = mapper.Map<Plan, PlanDto>(planWithItems);
+
+        // Assert
+        resultEmpty.Id.Should().Be(1);
+        resultEmpty.Name.Should().Be("Basic Plan");
+        resultEmpty.MinPrice.Should().Be(0); // Default for decimal
+
+        resultWithItems.Id.Should().Be(2);
+        resultWithItems.MinPrice.Should().Be(50m); // Min of 100, 50, 75
+    }
 }
+
+// Test models for Min on empty collection
+public class Plan
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public ICollection<HouseType> HouseTypes { get; set; } = new List<HouseType>();
+}
+
+public class HouseType
+{
+    public int Id { get; set; }
+    public decimal Price { get; set; }
+}
+
+public class PlanDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public decimal MinPrice { get; set; }
+}
+
